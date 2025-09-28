@@ -63,8 +63,8 @@
 			if (e.key == 'Tab')
 			{
 				e.preventDefault();
-				var start = this.selectionStart;
-				var end = this.selectionEnd;
+				const start = this.selectionStart;
+				const end   = this.selectionEnd;
 
 				// set textarea value to: text before caret + tab + text after caret
 				this.value = this.value.substring(0, start) +
@@ -76,6 +76,18 @@
 			}
 		});
 
+
+		function formatName(lastName, firstName)
+		{
+			lastName  = lastName.toUpperCase();
+			firstName = firstName.toLowerCase().replace(
+				/(^|\P{L})\p{L}/gu,
+				str => str.toUpperCase()
+			);
+
+			return lastName + ' ' + firstName;
+		}
+
 		function schedulePreview()
 		{
 			clearTimeout(debounceTimer);
@@ -84,7 +96,6 @@
 
 		function updatePreview()
 		{
-			console.log('Updating preview...');
 			// Clear previous preview
 			previewZone.innerHTML = '<h2>Preview</h2>';
 
@@ -104,10 +115,33 @@
 
 			names.forEach(name =>
 			{
-				const badge = document.createElement('div');
-				badge.textContent = name;
+				const badge = createBadge(name, '');
 				page.appendChild(badge);
 			});
+		}
+
+		function createDiv(className)
+		{
+			const div = document.createElement('div');
+			div.className = 'className';
+
+			return div;
+		}
+
+		function createBadge(badgeName, badgeTitle)
+		{
+			const badge  = createDiv('badge');
+			const header = createDiv('header');
+			const body   = createDiv('body');
+			const name   = createDiv('name');
+			const title  = createDiv('title');
+
+			name.textContent = badgeName;
+
+			body.append(name, title);
+			badge.append(header, body);
+
+			return badge;
 		}
 
 		// Initial preview update
