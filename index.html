@@ -56,14 +56,13 @@
 		const previewZone = document.getElementById('preview-zone');
 		let debounceTimer;
 
-		nameInput.addEventListener('input', () =>
+		nameInput.addEventListener('input', schedulePreview);
+
+		function schedulePreview()
 		{
 			clearTimeout(debounceTimer);
-			debounceTimer = setTimeout(() =>
-			{
-				updatePreview();
-			}, 300);
-		});
+			debounceTimer = setTimeout(() => { updatePreview(); }, 300);
+		}
 
 		function updatePreview()
 		{
