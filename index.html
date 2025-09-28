@@ -30,6 +30,7 @@
 			display: flex;
 			flex-direction: column;
 			float:         left;
+			font-family:   "Open Sans Condensed";
 			font-size:     24pt;
 			height:        60mm;
 			line-height:   80%;
@@ -39,23 +40,40 @@
 		}
 		.badge .head
 		{
-			display: flex;
-			height: 40%;
-			padding: 5mm;
 			box-sizing: border-box;
+			display:    flex;
+			height:     40%;
+			padding:    5mm;
 		}
-		.badge .logo,
 		.badge .logo-text
 		{
 			flex-grow: 1;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			font-weight: bold;
+			color: #ff8200;
+		}
+		.badge .logo
+		{
+			height: 100%;
+			width: auto;
 		}
 		.badge .body
 		{
+			box-sizing: border-box;
 			display: flex;
 			flex-direction: column;
 			justify-content: space-evenly;
 			align-items: center;
 			height: 60%;
+			padding: 0 5mm;
+		}
+		.badge .name
+		{
+			font-size: 120%;
+			font-weight: bold;
+			line-height: 100%;
 		}
 		@media screen
 		{
@@ -216,6 +234,9 @@
 			}
 		}
 		setBadgeHeader('https://ba13.banquealimentaire.org/sites/default/files/styles/local_homepage_logo/public/2019-02/Logo%20Banque%20Alimentaire%2013%20(fond%20transparent).png', '');
+
+		// dev only
+		setBadgeHeader('/tmp/cafe.png', 'CAFÉ DE RENTRÉE');
 
 		function createBadge(badgeName, badgeTitle)
 		{
