@@ -192,14 +192,14 @@
 
 		function updatePreview()
 		{
-			// Clear previous preview
 			page.innerHTML = '';
 
-			for (const line of nameInput.value.split("\n"))
-			{
-				const badgeInfo = parseLine(line);
-				const badge     = createBadge(badgeInfo.name, badgeInfo.title);
+			const lines  = nameInput.value.split("\n");
+			const badges = lines.map(parseLine).sort((a, b) => a.name > b.name);
 
+			for (const badgeInfo of badges)
+			{
+				const badge = createBadge(badgeInfo.name, badgeInfo.title);
 				page.appendChild(badge);
 			}
 		}
