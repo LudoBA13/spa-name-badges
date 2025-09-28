@@ -16,16 +16,16 @@
 			margin:  0;
 			padding: 0;
 		}
-		.page
+		#page
 		{
 			background-color: #fff;
+			min-height: 297mm;
 			width: 210mm;
-			height: 297mm;
 		}
 		.badge
 		{
-			border-bottom: 1px solid #00000080;
-			border-right:  1px solid #00000080;
+			border-bottom: 1px solid #00000040;
+			border-right:  1px solid #00000040;
 			float:         left;
 			font-size:     24pt;
 			height:        60mm;
@@ -53,7 +53,7 @@
 				resize: none;
 				font-family: monospace;
 			}
-			.page
+			#page
 			{
 				margin: 1rem auto;
 				box-shadow: 0 0 .5cm #00000080;
@@ -68,7 +68,7 @@
 		}
 		@media print
 		{
-			.page
+			#page
 			{
 				print-color-adjust: exact;
 			}
@@ -88,14 +88,16 @@
 		<h2>Input Names</h2>
 		<textarea id="name-input" placeholder="Enter one name per line"></textarea>
 	</div>
-	<div id="preview-zone"></div>
+	<div id="preview-zone">
+		<h2 class="screen-only">Preview</h2>
+		<div id="page"></div>
+	</div>
 	<script>
 		const nameInput = document.getElementById('name-input');
-		const previewZone = document.getElementById('preview-zone');
+		const page      = document.getElementById('page');
 		let debounceTimer;
 
 		nameInput.addEventListener('input', schedulePreview);
-
 		nameInput.addEventListener('keydown', function(e)
 		{
 			if (e.key == 'Tab')
@@ -111,6 +113,7 @@
 				// put caret at right position again
 				this.selectionStart =
 				this.selectionEnd = start + 1;
+				schedulePreview();
 			}
 		});
 
@@ -133,12 +136,12 @@
 		function schedulePreview()
 		{
 			clearTimeout(debounceTimer);
-			debounceTimer = setTimeout(() => updatePreview(), 300);
+			debounceTimer = setTimeout(updatePreview, 300);
 		}
 
-		function parseRow(row)
+		function parseLine(line)
 		{
-			const [lastName, firstName, title] = row.split("\t");
+			const [lastName = '', firstName = '', title = ''] = line.split("\t");
 
 			return {
 				name:  formatName(lastName, firstName),
@@ -149,25 +152,21 @@
 		function updatePreview()
 		{
 			// Clear previous preview
-			previewZone.innerHTML = '<h2 class="screen-only">Preview</h2>';
+			page.innerHTML = '';
 
-			const rows = nameInput.value.split('\n').filter(row => row.trim() !== '').map(row);
-
-			const page = document.createElement('div');
-			page.className = 'page';
-			previewZone.appendChild(page);
-
-			rows.forEach(row =>
+			for (const line of nameInput.value.split("\n"))
 			{
-				const badge = createBadge(row.name, row.title);
+				const badgeInfo = parseLine(line);
+				const badge     = createBadge(badgeInfo.name, badgeInfo.title);
+
 				page.appendChild(badge);
-			});
+			}
 		}
 
 		function createDiv(className)
 		{
 			const div = document.createElement('div');
-			div.className = 'className';
+			div.className = className;
 
 			return div;
 		}
@@ -181,6 +180,7 @@
 			const title  = createDiv('title');
 
 			name.textContent = badgeName;
+			title.textContent = badgeTitle;
 
 			body.append(name, title);
 			badge.append(header, body);
