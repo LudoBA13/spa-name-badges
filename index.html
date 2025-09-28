@@ -9,48 +9,86 @@
 		{
 			font-family: sans-serif;
 			display: flex;
-			height: 100vh;
-			margin: 0;
 		}
-		#input-zone
+		body,
+		div
 		{
-			flex: 1;
-			padding: 1rem;
-			display: flex;
-			flex-direction: column;
-		}
-		#input-zone textarea
-		{
-			flex: 1;
-			resize: none;
-			font-family: monospace;
-		}
-		#preview-zone
-		{
-			flex: 2;
-			padding: 1rem;
-			background-color: #f0f0f0;
-			overflow: auto;
+			margin:  0;
+			padding: 0;
 		}
 		.page
 		{
-			background-color: white;
+			background-color: #fff;
 			width: 210mm;
 			height: 297mm;
-			margin: 1rem auto;
-			box-shadow: 0 0 0.5cm rgba(0,0,0,0.5);
+		}
+		.badge
+		{
+			border-bottom: 1px solid #00000080;
+			border-right:  1px solid #00000080;
+			float:         left;
+			font-size:     24pt;
+			height:        60mm;
+			line-height:   80%;
+			margin:        0;
+			text-align:    center;
+			width:         88mm;
+		}
+		@media screen
+		{
+			body
+			{
+				height: 100vh;
+			}
+			#input-zone
+			{
+				flex: 1;
+				padding: 1rem;
+				display: flex;
+				flex-direction: column;
+			}
+			#input-zone textarea
+			{
+				flex: 1;
+				resize: none;
+				font-family: monospace;
+			}
+			.page
+			{
+				margin: 1rem auto;
+				box-shadow: 0 0 .5cm #00000080;
+			}
+			#preview-zone
+			{
+				flex: 2;
+				padding: 1rem;
+				background-color: #f0f0f0;
+				overflow: auto;
+			}
+		}
+		@media print
+		{
+			.page
+			{
+				print-color-adjust: exact;
+			}
+			.badge
+			{
+				page-break-inside: avoid;
+			}
+			.screen-only
+			{
+				display: none;
+			}
 		}
 	</style>
 </head>
 <body>
-	<div id="input-zone">
+	<div id="input-zone" class="screen-only">
 		<h2>Input Names</h2>
 		<textarea id="name-input" placeholder="Enter one name per line"></textarea>
 	</div>
-	<div id="preview-zone">
-		<h2>Preview</h2>
-		<div class="page"></div>
-	</div>
+	<div id="preview-zone"></div>
 	<script>
 		const nameInput = document.getElementById('name-input');
 		const previewZone = document.getElementById('preview-zone');
@@ -76,11 +114,10 @@
 			}
 		});
 
-
 		function formatName(lastName, firstName)
 		{
-			lastName  = lastName.toUpperCase();
-			firstName = firstName.toLowerCase().replace(
+			lastName  = lastName.trim().toUpperCase();
+			firstName = firstName.trim().toLowerCase().replace(
 				/(^|\P{L})\p{L}/gu,
 				str => str.toUpperCase()
 			);
@@ -88,34 +125,41 @@
 			return lastName + ' ' + firstName;
 		}
 
+		function formatTitle(title)
+		{
+			return title.trim().replace(/^\p{L}/u, str => str.toUpperCase());
+		}
+
 		function schedulePreview()
 		{
 			clearTimeout(debounceTimer);
-			debounceTimer = setTimeout(() => { updatePreview(); }, 300);
+			debounceTimer = setTimeout(() => updatePreview(), 300);
+		}
+
+		function parseRow(row)
+		{
+			const [lastName, firstName, title] = row.split("\t");
+
+			return {
+				name:  formatName(lastName, firstName),
+				title: formatTitle(title)
+			};
 		}
 
 		function updatePreview()
 		{
 			// Clear previous preview
-			previewZone.innerHTML = '<h2>Preview</h2>';
+			previewZone.innerHTML = '<h2 class="screen-only">Preview</h2>';
 
-			const names = nameInput.value.split('\n').filter(name => name.trim() !== '');
-
-			if (names.length === 0)
-			{
-				const page = document.createElement('div');
-				page.className = 'page';
-				previewZone.appendChild(page);
-				return;
-			}
+			const rows = nameInput.value.split('\n').filter(row => row.trim() !== '').map(row);
 
 			const page = document.createElement('div');
 			page.className = 'page';
 			previewZone.appendChild(page);
 
-			names.forEach(name =>
+			rows.forEach(row =>
 			{
-				const badge = createBadge(name, '');
+				const badge = createBadge(row.name, row.title);
 				page.appendChild(badge);
 			});
 		}
