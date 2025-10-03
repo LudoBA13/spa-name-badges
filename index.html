@@ -174,7 +174,7 @@
 				str => str.toUpperCase()
 			);
 
-			return lastName + ' ' + firstName;
+			return firstName + ' ' + lastName;
 		}
 
 		function formatTitle(title)
@@ -190,11 +190,15 @@
 
 		function parseLine(line)
 		{
-			const [lastName = '', firstName = '', title = ''] = line.split("\t");
+			let [lastName = '', firstName = '', title = ''] = line.split("\t");
+			firstName = firstName.trim();
+			lastName  = lastName.trim().replace(' ', "\xA0");
 
 			return {
-				name:  formatName(lastName, firstName),
-				title: formatTitle(title)
+				firstName: firstName,
+				lastName:  lastName,
+				fullName:  formatName(lastName, firstName),
+				title:     formatTitle(title)
 			};
 		}
 
@@ -202,12 +206,12 @@
 		{
 			page.innerHTML = '';
 
-			const lines  = nameInput.value.split("\n");
-			const badges = lines.map(parseLine).sort((a, b) => a.name > b.name);
+			const lines  = nameInput.value.trim().split("\n");
+			const badges = lines.map(parseLine).sort((a, b) => a.lastName > b.lastName);
 
 			for (const badgeInfo of badges)
 			{
-				const badge = createBadge(badgeInfo.name, badgeInfo.title);
+				const badge = createBadge(badgeInfo.fullName, badgeInfo.title);
 				page.appendChild(badge);
 			}
 		}
